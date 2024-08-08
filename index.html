@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Recommendation</title>
+</head>
+<body>
+    <h1>Movie Recommendation System</h1>
+    <form id="recommendation-form">
+        <label for="movie_name">Enter the movie name:</label>
+        <input type="text" id="movie_name" name="movie_name" required>
+        <button type="submit">Get Recommendations</button>
+    </form>
+
+    <div id="recommendations"></div>
+
+    <script>
+        document.querySelector('#recommendation-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const movieName = document.querySelector('#movie_name').value;
+            fetch('/recommend', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: new URLSearchParams({
+                    'movie_name': movieName
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                const recommendationsDiv = document.querySelector('#recommendations');
+                recommendationsDiv.innerHTML = '';
+                if (data.error) {
+                    recommendationsDiv.innerHTML = `<p>${data.error}</p>`;
+                } else {
+                    data.forEach(movie => {
+                        recommendationsDiv.innerHTML += `
+                            <div>
+                                <h3>${movie['Movie Title']}</h3>
+                                <p>Rating: ${movie['Rating']}</p>
+                                <p>Genre: ${movie['Genre']}</p>
+                                <p>Cast: ${movie['Cast']}</p>
+                            </div>
+                        `;
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
